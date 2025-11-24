@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "StockPrices": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "isProduction": "false"
+      }
+    },
+    "StockPrices Prod": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "isProduction": "true"
+      }
+    }
+  }
+}
