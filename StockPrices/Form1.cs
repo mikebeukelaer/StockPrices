@@ -1,6 +1,7 @@
 using StockPrices.DTO;
 using System.DirectoryServices.ActiveDirectory;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -43,7 +44,7 @@ namespace StockPrices
             base.OnShown(e);
             IntPtr handle = this.Handle;
             int exStyle = GetWindowLong(handle, GWL_EXSTYLE);
-            SetWindowLong(handle, GWL_EXSTYLE, exStyle | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
+            SetWindowLong(handle, GWL_EXSTYLE, exStyle | WS_EX_TOOLWINDOW );
         }
 
         private void Setup()
@@ -188,6 +189,10 @@ namespace StockPrices
         private void Form1_Load(object sender, EventArgs e)
         {
             Setup();
+            GraphicsPath p = RoundedRect(this.ClientRectangle, 10);
+            this.Region = new Region(p);
+
+
             timer1.Interval = 60000 * 5;
             timer1.Tick += Timer1_Tick;
             timer1.Start();
@@ -342,6 +347,51 @@ namespace StockPrices
             {
                 this.Close();
             }
+        }
+
+        private void FillRoundedRectangle(Graphics graphics, Brush brush, Rectangle bounds, int cornerRadius)
+        {
+            if (graphics == null)
+                throw new ArgumentNullException(nameof(graphics));
+            if (brush == null)
+                throw new ArgumentNullException(nameof(brush));
+
+            using (GraphicsPath path = RoundedRect(bounds, cornerRadius))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        private GraphicsPath RoundedRect(Rectangle bounds, int radius)
+        {
+            int diameter = radius * 2;
+            Size size = new Size(diameter, diameter);
+            Rectangle arc = new Rectangle(bounds.Location, size);
+            GraphicsPath path = new GraphicsPath();
+
+            if (radius == 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+
+            // top left arc  
+            path.AddArc(arc, 180, 90);
+
+            // top right arc  
+            arc.X = bounds.Right - diameter;
+            path.AddArc(arc, 270, 90);
+
+            // bottom right arc  
+            arc.Y = bounds.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+
+            // bottom left arc 
+            arc.X = bounds.Left;
+            path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
         }
     }
 
