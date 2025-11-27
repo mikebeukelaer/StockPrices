@@ -1,14 +1,30 @@
+using Microsoft.Extensions.Configuration;
 using StockPrices.DTO;
+using System.Configuration;
 using System.DirectoryServices.ActiveDirectory;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
+using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace StockPrices
 {
     public partial class Form1 : Form
     {
+
+        internal class Item
+        {
+            public string displayname { get; set; }
+            public string displaysymbol { get; set; }
+        }
+
+
+
+
+        private static IConfiguration _configuration;
+        private Dictionary<string, Item> _lookup;
 
         public const int GWL_EXSTYLE = -20;
         public const int WS_EX_TOOLWINDOW = 0x00000080;
@@ -36,6 +52,15 @@ namespace StockPrices
                          ControlStyles.AllPaintingInWmPaint |
                          ControlStyles.UserPaint, true);
             this.BackColor = Color.FromArgb(1, 0, 0, 0);
+
+            _configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory) // Ensure correct path
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            _lookup = new Dictionary<string, Item>();
+            _configuration.GetSection("LookUp").Bind(_lookup);
+
             SetLocation();
         }
 
@@ -47,44 +72,22 @@ namespace StockPrices
             SetWindowLong(handle, GWL_EXSTYLE, exStyle | WS_EX_TOOLWINDOW );
         }
 
+        /// <summary>
+        /// Below is the worst loop ever written by man or beast
+        /// </summary>
         private void Setup()
         {
-            var symbols = new List<string> { ".dji", ".ixic", "f", "vong", "zbra" };
-            ;
-            foreach (var symbol in symbols)
+            foreach(var kvp in _lookup)
             {
-                var ixm = new StockInstrument { Symbol = symbol };
+                var ixm = new StockInstrument { Symbol = kvp.Key };
                 _instruments.Add(ixm);
             }
 
-            var niceNames = new Dictionary<string, string>()
-            {
-                { "vong" , "Vanguard Russell 1000 Growth Index"},
-                { "f", "Ford"},
-                { ".ixic", "NASDAQ Composite"},
-                { ".dji" , "Dow Jones Industrial Average"},
-                { "zbra", "Zebra Technologies"}
-            };
-
             foreach (var ixm in _instruments)
             {
-                ixm.DisplayName = niceNames.GetValueOrDefault(ixm.Symbol, ixm.Symbol);
+                ixm.DisplayName = _lookup.GetValueOrDefault(ixm.Symbol, new Item { displayname = ixm.Symbol }).displayname;
+                ixm.DisplaySymbol = _lookup.GetValueOrDefault(ixm.Symbol, new Item { displaysymbol = ixm.Symbol }).displaysymbol;
             }
-
-            var niceSymbols = new Dictionary<string, string>()
-            {
-                { "vong" , "VONG"},
-                { "f", "F"},
-                { ".ixic", "NASDAQ"},
-                { ".dji" , "Dow Jones"},
-                { "zbra", "ZBRA"}
-            };
-
-            foreach (var ixm in _instruments)
-            {
-                ixm.DisplaySymbol = niceSymbols.GetValueOrDefault(ixm.Symbol, ixm.Symbol);
-            }
-
 
             _fetched = false;
         }
