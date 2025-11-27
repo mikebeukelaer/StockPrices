@@ -46,31 +46,31 @@ namespace StockPrices
 
                 ixm.PerformanceIndicator = Indicator.UNCHANGED;
 
-                var indicator = container.SelectSingleNode(".//span[@class='QuoteStrip-changeUp']");
-                if (indicator == null)
-                {
-                    indicator = container.SelectSingleNode(".//span[@class='QuoteStrip-changeDown']");
-                    
-                    if(indicator != null)
-                    {
-                        ixm.PerformanceIndicator = Indicator.DOWN;
-                        var inner = indicator.SelectSingleNode(".//span");
-                        ixm.PriceChange = inner.InnerText;
-                    }
-                   
-                   
-                }
-                else
+                var upIndicator = container.SelectSingleNode(".//span[@class='QuoteStrip-changeUp']");
+                var downIndicator = container.SelectSingleNode(".//span[@class='QuoteStrip-changeDown']");
+                var unchangedIndicator = container.SelectSingleNode(".//span[@class='QuoteStrip-unchanged']");
+
+                if (upIndicator != null)
                 {
                     ixm.PerformanceIndicator = Indicator.UP;
-                    var inner = indicator.SelectSingleNode(".//span");
-                   
+                    var inner = upIndicator.SelectSingleNode(".//span");
+                    ixm.PriceChange = inner.InnerText;
+                }
+
+                if (downIndicator != null) 
+                {
+                    ixm.PerformanceIndicator = Indicator.DOWN;
+                    var inner = downIndicator.SelectSingleNode(".//span");
                     ixm.PriceChange = inner.InnerText;
 
                 }
 
-
-
+                if (unchangedIndicator != null) 
+                { 
+                    ixm.PerformanceIndicator = Indicator.UNCHANGED;
+                    var inner = unchangedIndicator.SelectSingleNode(".//span");
+                    ixm.PriceChange = inner.InnerText;
+                }
 
             }
             catch (Exception ex) {

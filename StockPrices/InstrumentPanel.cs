@@ -57,6 +57,7 @@ namespace StockPrices
                 titleText = titleText.Substring(0, titleText.Length-10) + "...";
             }
             var indicatorTop = localTop + (titleHeight / 2) - (indicatorWidth / 2);
+            //+ (titleHeight / 2) - (indicatorWidth / 2);
             if (stockInstrument.PerformanceIndicator == Indicator.UP)
             {
                 // Draw up
@@ -78,6 +79,16 @@ namespace StockPrices
                 new Point(localLeft,indicatorTop),
                 new Point(localLeft + indicatorWidth,indicatorTop)
                 });
+            } else 
+            {
+                // Draw unchanged
+                //
+                graphic.FillRectangle
+                (
+                    new SolidBrush(Color.Blue), 
+                    new Rectangle(localLeft,indicatorTop,indicatorWidth,indicatorWidth)
+                );
+                
             }
 
 
@@ -87,19 +98,19 @@ namespace StockPrices
             //graphic.DrawRectangle(new Pen(new SolidBrush(Color.Wheat), 1),
             // new Rectangle(
             //    localLeft + indicatorWidth + 2,
-            //    localTop, 
-            //    titleWidth, 
+            //    localTop,
+            //    titleWidth,
             //    titleHeight));
 
 
             graphic.DrawString(titleText,
-                new Font(titleFontName, titleFontSize, FontStyle.Bold),
-                new SolidBrush(Color.White),
-                new Rectangle(
-                    localLeft + indicatorWidth + 2,
-                    localTop, 
-                    titleWidth, 
-                    titleHeight));
+                    new Font(titleFontName, titleFontSize, FontStyle.Bold),
+                    new SolidBrush(Color.White),
+                    new Rectangle(
+                        localLeft + indicatorWidth + 2,
+                        localTop,
+                        titleWidth,
+                        titleHeight));
            
             
             var nextLeft = localLeft + indicatorWidth + 2 + titleWidth + 2;
@@ -109,7 +120,26 @@ namespace StockPrices
             //        localTop,
             //        Width-nextLeft -4,
             //        titleHeight));
-            Color priceColor = stockInstrument.PerformanceIndicator == Indicator.UP ? Color.LimeGreen : Color.Red;
+            Color priceColor;
+            switch (stockInstrument.PerformanceIndicator)
+            {
+                case Indicator.UP:
+                    priceColor = Color.LimeGreen;
+                    break;
+                case Indicator.DOWN:
+                    priceColor = Color.Red; 
+                    break;
+                case Indicator.UNCHANGED:
+                    priceColor = Color.White;
+                    break;
+                default:
+                    priceColor = Color.Blue;
+                    break;
+
+            };
+            
+            
+           // = stockInstrument.PerformanceIndicator == Indicator.UP ? Color.LimeGreen : Color.Red;
 
             graphic.DrawString(stockInstrument.CurrentPrice,
                 new Font(titleFontName, titleFontSize, FontStyle.Bold),

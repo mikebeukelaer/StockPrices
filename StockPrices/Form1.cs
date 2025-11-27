@@ -147,6 +147,18 @@ namespace StockPrices
                                PerformanceIndicator = Indicator.DOWN,
                                PriceChange = "-2.34"
                            });
+            _instruments.Add(
+                          new StockInstrument
+                          {
+                              Name = "Vong",
+                              ClosePrice = "230.97",
+                              CurrentPrice = "2310.00",
+                              DisplayName = "Apple Inc.",
+                              Symbol = "VONG",
+                              DisplaySymbol = "AAPL",
+                              PerformanceIndicator = Indicator.UNCHANGED,
+                              PriceChange = "UNCH"
+                          });
             // var pg = new PriceGetter();
 
             return Task.FromResult(retVal);
